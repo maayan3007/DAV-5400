@@ -126,15 +126,13 @@ with open('C:\Python/cars-sample35.txt') as csvfile:
 print(Class_veh_list)
 
 
-# In[73]:
+# In[78]:
 
 
 #create a list of the index of all cars with medium price
 #Supported by: https://stackoverflow.com/questions/28182569/get-all-indexes-for-a-python-list
 
-med_price_list = []
-
-med_price_list.append([index for index, value in enumerate(price_list) if value == 'med'])
+med_price_list=([index for index, value in enumerate(price_list) if value == "med"])
 
 print('The index of cars with medium price is:', med_price_list)
 
@@ -159,7 +157,7 @@ print('The number of passengers for automobile with price medium:',Pass_med_pric
 
 
 
-# In[77]:
+# In[79]:
 
 
 #create a list of the num of passengers of all cars with medium price
