@@ -1,0 +1,5 @@
+AirLine,Status,LosAngeles,Phoenix,SanDiego,SanFrancisco,Seattle
+ALASKA,onTime,497,221,212,503,1841
+ALASKA,delayed,62,12,20,102,305
+AMWEST,onTime,694,4840,383,320,201
+AMWEST,delayed,117,415,65,129,61
