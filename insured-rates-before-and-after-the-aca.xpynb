@@ -1,0 +1,1044 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "882b65d4-2bbb-a106-66e3-9835717b5749"
+   },
+   "source": [
+    "<h1 align=\"center\"> Visualizing Changes in Healthcare Insurance Coverage (2010-2015)\n",
+    "<h2 align=\"center\"> Insured Rates Before and After the ACA\n",
+    "<h3 align=\"center\"> by: Martin Cisneros"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "bc50aa73-0397-cc43-c2e3-eda31d12ca61"
+   },
+   "source": [
+    "# Contents  \n",
+    "   \n",
+    "## Introduction\n",
+    "[Introduction](#intro)  \n",
+    "\n",
+    "## Data Wrangling\n",
+    "[Import Basic Libraries](#libs1)  \n",
+    "[Retrieve Health Insurance Coverage Data](#kaggle)  \n",
+    "[Clean the Data](#clean)  \n",
+    "[Mutate Full State Name for the Abbreviated State Names](#abbr)  \n",
+    "[Add US Population Data for Per Capita Calculations](#capita)\n",
+    "\n",
+    "## Visualizations \n",
+    "[Import Visualization Libraries](#libs2)  \n",
+    "[USA Choropleth Map - Insured Rate Changes by State](#usmap)   \n",
+    "[Box Plot - Medicaid State Expansion](#box)  \n",
+    "[Histograms - Variables by State](#bar)  \n",
+    "[Scatter Plots - Relationship between Insured Rate Changes and Other Variables](#scatter)  \n",
+    "[USA Choropleth Map - Medicaid Expansion by State](#usmap2) \n",
+    "\n",
+    "## Conclusion\n",
+    "[Conclusion](#conclusion) \n",
+    "\n",
+    "\n",
+    "## Appendix\n",
+    "[Predictive Analysis](#model)  "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "d42a9480-f502-9fef-6e32-f6abe9e81dec"
+   },
+   "source": [
+    "<a id='intro'></a>\n",
+    "# Introduction\n",
+    "\n",
+    "The following questions will be addressed: \n",
+    "\n",
+    "-   How has the Affordable Care Act changed the rate of citizens with health insurance coverage? \n",
+    "-   Which states observed the greatest increase in their insured rate? \n",
+    "-   Did those states expand Medicaid program coverage and/or implement a health insurance marketplace? \n",
+    "\n",
+    "On March 24th 2017, House Republican leaders pulled legislation to repeal the _Affordable Care Act_. In light of these recent developments, let's take a look at ACA's impact on US health care thus far. \n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "d3a1c0e7-8522-dfbf-ae77-84c1f8d89f33"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "72f00fdb-f5b8-b4c6-4033-118b5987fbf9"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {
+    "_cell_guid": "434de5fc-d273-59c9-60fb-bb0cc42f6c8e"
+   },
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "from sklearn.preprocessing import Imputer\n",
+    "\n",
+    "import warnings\n",
+    "warnings.filterwarnings('ignore')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "2035110a-713d-8670-9a97-268c9eb23438"
+   },
+   "source": [
+    "<a id='kaggle'></a>\n",
+    "### Retrieve Health Insurance Coverage Data\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {
+    "_cell_guid": "d3609872-ae8d-9739-f6ff-14bc623b2106"
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>State</th>\n",
+       "      <th>Uninsured Rate (2010)</th>\n",
+       "      <th>Uninsured Rate (2015)</th>\n",
+       "      <th>Uninsured Rate Change (2010-2015)</th>\n",
+       "      <th>Health Insurance Coverage Change (2010-2015)</th>\n",
+       "      <th>Employer Health Insurance Coverage (2015)</th>\n",
+       "      <th>Marketplace Health Insurance Coverage (2016)</th>\n",
+       "      <th>Marketplace Tax Credits (2016)</th>\n",
+       "      <th>Average Monthly Tax Credit (2016)</th>\n",
+       "      <th>State Medicaid Expansion (2016)</th>\n",
+       "      <th>Medicaid Enrollment (2013)</th>\n",
+       "      <th>Medicaid Enrollment (2016)</th>\n",
+       "      <th>Medicaid Enrollment Change (2013-2016)</th>\n",
+       "      <th>Medicare Enrollment (2016)</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>Alabama</td>\n",
+       "      <td>14.6%</td>\n",
+       "      <td>10.1%</td>\n",
+       "      <td>-4.5%</td>\n",
+       "      <td>215000</td>\n",
+       "      <td>2545000</td>\n",
+       "      <td>165534</td>\n",
+       "      <td>152206</td>\n",
+       "      <td>$310</td>\n",
+       "      <td>False</td>\n",
+       "      <td>799176.0</td>\n",
+       "      <td>910775</td>\n",
+       "      <td>111599.0</td>\n",
+       "      <td>989855</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "      State Uninsured Rate (2010) Uninsured Rate (2015)  \\\n",
+       "0  Alabama                  14.6%                 10.1%   \n",
+       "\n",
+       "  Uninsured Rate Change (2010-2015)  \\\n",
+       "0                            -4.5%    \n",
+       "\n",
+       "   Health Insurance Coverage Change (2010-2015)  \\\n",
+       "0                                        215000   \n",
+       "\n",
+       "   Employer Health Insurance Coverage (2015)  \\\n",
+       "0                                    2545000   \n",
+       "\n",
+       "   Marketplace Health Insurance Coverage (2016)  \\\n",
+       "0                                        165534   \n",
+       "\n",
+       "   Marketplace Tax Credits (2016) Average Monthly Tax Credit (2016)  \\\n",
+       "0                          152206                             $310    \n",
+       "\n",
+       "  State Medicaid Expansion (2016)  Medicaid Enrollment (2013)  \\\n",
+       "0                           False                    799176.0   \n",
+       "\n",
+       "   Medicaid Enrollment (2016)  Medicaid Enrollment Change (2013-2016)  \\\n",
+       "0                      910775                                111599.0   \n",
+       "\n",
+       "   Medicare Enrollment (2016)  \n",
+       "0                      989855  "
+      ]
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "filename1 = '../input/states.csv'\n",
+    "ACA = pd.read_csv(filename1)\n",
+    "\n",
+    "ACA.head(1)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "9b5c034f-bf4c-25e0-a427-0bd0bb58219c"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {
+    "_cell_guid": "3a40ce12-875d-d22a-1818-1bf46d9e25cd"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {
+    "_cell_guid": "5a66a9aa-98c6-1025-113c-d99333ed0648"
+   },
+   "outputs": [],
+   "source": [
+    "# Convert %'s to float64\n",
+    "ACA['Uninsured Rate Change (2010-2015)'] = ACA['Uninsured Rate Change (2010-2015)'].replace('%','',regex=True).astype('float')\n",
+    "ACA['Uninsured Rate (2010)'] = ACA['Uninsured Rate (2010)'].replace('%','',regex=True).astype('float')\n",
+    "ACA['Uninsured Rate (2015)'] = ACA['Uninsured Rate (2015)'].replace('%','',regex=True).astype('float')\n",
+    "\n",
+    "# Convert $ to int64\n",
+    "convertdollartoint = lambda x: int(x.strip('$'))\n",
+    "ACA['Average Monthly Tax Credit (2016)'] = ACA['Average Monthly Tax Credit (2016)'].map(convertdollartoint)\n",
+    "\n",
+    "# Remove white spaces from original data's State column\n",
+    "ACA['State'] = ACA['State'].str.strip()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {
+    "_cell_guid": "2f09644f-593f-b15d-c014-800d1e3727b3"
+   },
+   "outputs": [],
+   "source": [
+    "# Remove the USA entry \n",
+    "ACA = ACA[ACA['State'] != 'United States']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {
+    "_cell_guid": "a30029cf-fcac-d4f7-b3c8-42024a88ee1a"
+   },
+   "outputs": [],
+   "source": [
+    "# Sign correction to create an 'Insured Rate Change' column\n",
+    "ACA['Insured Rate Change (2010-2015)'] = ACA['Uninsured Rate Change (2010-2015)'].apply(lambda x: x*-1)\n",
+    "#ACA"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {
+    "_cell_guid": "091d5cf7-28d8-d0b0-6a2d-a7a29309c18c"
+   },
+   "outputs": [],
+   "source": [
+    "# Create a new column for .pretty Medicaid Expansion information\n",
+    "def convert_bool(bool):\n",
+    "        if bool == True:\n",
+    "            bool = 'Yes'\n",
+    "        elif bool == False:\n",
+    "            bool = 'No'\n",
+    "        return bool\n",
+    "\n",
+    "MedicaidExpansion = ACA['State Medicaid Expansion (2016)']\n",
+    "ACA['MedicaidExpansion'] = MedicaidExpansion.apply(convert_bool)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "f6733168-1ef1-6bcb-66cd-973b81044684"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {
+    "_cell_guid": "9c690dac-99ef-8a61-769d-d960d7ce5607"
+   },
+   "outputs": [],
+   "source": [
+    "# Create a new dictionary with State Name and Abbreviation mappings\n",
+    "\n",
+    "states_abr = [\"AK\", \"AL\", \"AR\", \"AZ\", \"CA\", \"CO\", \"CT\", \"DC\", \"DE\", \"FL\", \"GA\",\n",
+    "                                         \"HI\", \"IA\", \"ID\", \"IL\", \"IN\", \"KS\", \"KY\", \"LA\", \"MA\", \"MD\", \"ME\",\n",
+    "                                         \"MI\", \"MN\", \"MO\", \"MS\",  \"MT\", \"NC\", \"ND\", \"NE\", \"NH\", \"NJ\", \"NM\",\n",
+    "                                         \"NV\", \"NY\", \"OH\", \"OK\", \"OR\", \"PA\", \"PR\", \"RI\", \"SC\", \"SD\", \"TN\",\n",
+    "                                         \"TX\", \"UT\", \"VA\", \"VT\", \"WA\", \"WI\", \"WV\", \"WY\"]\n",
+    "\n",
+    "state_full = [\"Alaska\",\"Alabama\",\"Arkansas\",\"Arizona\",\"California\",\"Colorado\",\n",
+    "                                       \"Connecticut\",\"District of Columbia\",\"Delaware\",\"Florida\",\"Georgia\",\n",
+    "                                       \"Hawaii\",\"Iowa\",\"Idaho\",\"Illinois\",\"Indiana\",\"Kansas\",\"Kentucky\",\n",
+    "                                       \"Louisiana\",\"Massachusetts\",\"Maryland\",\"Maine\",\"Michigan\",\"Minnesota\",\n",
+    "                                       \"Missouri\",\"Mississippi\",\"Montana\",\"North Carolina\",\"North Dakota\",\n",
+    "                                       \"Nebraska\",\"New Hampshire\",\"New Jersey\",\"New Mexico\",\"Nevada\",\n",
+    "                                       \"New York\",\"Ohio\",\"Oklahoma\",\"Oregon\",\"Pennsylvania\",\"Puerto Rico\",\n",
+    "                                       \"Rhode Island\",\"South Carolina\",\"South Dakota\",\"Tennessee\",\"Texas\",\n",
+    "                                       \"Utah\",\"Virginia\",\"Vermont\",\"Washington\",\"Wisconsin\",\n",
+    "                                       \"West Virginia\",\"Wyoming\"]\n",
+    "\n",
+    "state_hash = dict(zip(states_abr, state_full))\n",
+    "\n",
+    "states_abr_df = pd.DataFrame([[key,value] for key,value in state_hash.items()],columns=[\"abbr\",\"name\"])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {
+    "_cell_guid": "70535fe2-dfb8-7ff9-500f-1e9a437fa015"
+   },
+   "outputs": [],
+   "source": [
+    "# Join to ACA dataset\n",
+    "\n",
+    "def combine_dfs(ACA, states_abr_df):\n",
+    "        return pd.merge(ACA, states_abr_df, left_on = 'State', right_on = 'name', how = 'left')\n",
+    "\n",
+    "ACA = combine_dfs(ACA, states_abr_df)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "4afbd34a-3ffa-f78c-1f43-4629ecedf039"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {
+    "_cell_guid": "f786041c-e08f-a96c-fe28-eaf66bd7ab3f"
+   },
+   "outputs": [
+    {
+     "ename": "FileNotFoundError",
+     "evalue": "File b'/Users/martincisneros/Desktop/Tutorials/Kaggle/healthcare_insurance_coverage/2016PopulationData.csv' does not exist",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mFileNotFoundError\u001b[0m                         Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-9-407d7b4cef37>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[0mfilename2\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m'/Users/martincisneros/Desktop/Tutorials/Kaggle/healthcare_insurance_coverage/2016PopulationData.csv'\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 2\u001b[0;31m \u001b[0mpopulation\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mpd\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mread_csv\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mfilename2\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      3\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      4\u001b[0m \u001b[0mpopulation\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mhead\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;36m1\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/opt/conda/lib/python3.6/site-packages/pandas/io/parsers.py\u001b[0m in \u001b[0;36mparser_f\u001b[0;34m(filepath_or_buffer, sep, delimiter, header, names, index_col, usecols, squeeze, prefix, mangle_dupe_cols, dtype, engine, converters, true_values, false_values, skipinitialspace, skiprows, nrows, na_values, keep_default_na, na_filter, verbose, skip_blank_lines, parse_dates, infer_datetime_format, keep_date_col, date_parser, dayfirst, iterator, chunksize, compression, thousands, decimal, lineterminator, quotechar, quoting, escapechar, comment, encoding, dialect, tupleize_cols, error_bad_lines, warn_bad_lines, skipfooter, skip_footer, doublequote, delim_whitespace, as_recarray, compact_ints, use_unsigned, low_memory, buffer_lines, memory_map, float_precision)\u001b[0m\n\u001b[1;32m    644\u001b[0m                     skip_blank_lines=skip_blank_lines)\n\u001b[1;32m    645\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 646\u001b[0;31m         \u001b[0;32mreturn\u001b[0m \u001b[0m_read\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mfilepath_or_buffer\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mkwds\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    647\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    648\u001b[0m     \u001b[0mparser_f\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m__name__\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mname\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/opt/conda/lib/python3.6/site-packages/pandas/io/parsers.py\u001b[0m in \u001b[0;36m_read\u001b[0;34m(filepath_or_buffer, kwds)\u001b[0m\n\u001b[1;32m    387\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    388\u001b[0m     \u001b[0;31m# Create the parser.\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 389\u001b[0;31m     \u001b[0mparser\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mTextFileReader\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mfilepath_or_buffer\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkwds\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    390\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    391\u001b[0m     \u001b[0;32mif\u001b[0m \u001b[0;34m(\u001b[0m\u001b[0mnrows\u001b[0m \u001b[0;32mis\u001b[0m \u001b[0;32mnot\u001b[0m \u001b[0;32mNone\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;32mand\u001b[0m \u001b[0;34m(\u001b[0m\u001b[0mchunksize\u001b[0m \u001b[0;32mis\u001b[0m \u001b[0;32mnot\u001b[0m \u001b[0;32mNone\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/opt/conda/lib/python3.6/site-packages/pandas/io/parsers.py\u001b[0m in \u001b[0;36m__init__\u001b[0;34m(self, f, engine, **kwds)\u001b[0m\n\u001b[1;32m    728\u001b[0m             \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0moptions\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m'has_index_names'\u001b[0m\u001b[0;34m]\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mkwds\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m'has_index_names'\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    729\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 730\u001b[0;31m         \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_make_engine\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mengine\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    731\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    732\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0mclose\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/opt/conda/lib/python3.6/site-packages/pandas/io/parsers.py\u001b[0m in \u001b[0;36m_make_engine\u001b[0;34m(self, engine)\u001b[0m\n\u001b[1;32m    921\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0m_make_engine\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mengine\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;34m'c'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    922\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0mengine\u001b[0m \u001b[0;34m==\u001b[0m \u001b[0;34m'c'\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 923\u001b[0;31m             \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_engine\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mCParserWrapper\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mf\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0moptions\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    924\u001b[0m         \u001b[0;32melse\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    925\u001b[0m             \u001b[0;32mif\u001b[0m \u001b[0mengine\u001b[0m \u001b[0;34m==\u001b[0m \u001b[0;34m'python'\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/opt/conda/lib/python3.6/site-packages/pandas/io/parsers.py\u001b[0m in \u001b[0;36m__init__\u001b[0;34m(self, src, **kwds)\u001b[0m\n\u001b[1;32m   1388\u001b[0m         \u001b[0mkwds\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m'allow_leading_cols'\u001b[0m\u001b[0;34m]\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mindex_col\u001b[0m \u001b[0;32mis\u001b[0m \u001b[0;32mnot\u001b[0m \u001b[0;32mFalse\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1389\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 1390\u001b[0;31m         \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_reader\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0m_parser\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mTextReader\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0msrc\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkwds\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   1391\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1392\u001b[0m         \u001b[0;31m# XXX\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32mpandas/parser.pyx\u001b[0m in \u001b[0;36mpandas.parser.TextReader.__cinit__ (pandas/parser.c:4184)\u001b[0;34m()\u001b[0m\n",
+      "\u001b[0;32mpandas/parser.pyx\u001b[0m in \u001b[0;36mpandas.parser.TextReader._setup_parser_source (pandas/parser.c:8449)\u001b[0;34m()\u001b[0m\n",
+      "\u001b[0;31mFileNotFoundError\u001b[0m: File b'/Users/martincisneros/Desktop/Tutorials/Kaggle/healthcare_insurance_coverage/2016PopulationData.csv' does not exist"
+     ]
+    }
+   ],
+   "source": [
+    "filename2 = '/Users/martincisneros/Desktop/Tutorials/Kaggle/healthcare_insurance_coverage/2016PopulationData.csv'\n",
+    "population = pd.read_csv(filename2)\n",
+    "\n",
+    "population.head(1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {
+    "_cell_guid": "651d7f98-9b8e-6614-e938-74334c940513"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "ac3217f1-bcd5-e4dc-808b-ac97ca77c9c1"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {
+    "_cell_guid": "8bfb28a6-5e40-d342-992f-c74838804df3"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {
+    "_cell_guid": "7548a90f-d655-266b-86fe-14d9faf26739"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {
+    "_cell_guid": "339866a8-b342-3468-e348-8c10b30b2358"
+   },
+   "outputs": [
+    {
+     "ename": "NameError",
+     "evalue": "name 'population' is not defined",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-10-02626936ee1d>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[1;32m      4\u001b[0m         \u001b[0;32mreturn\u001b[0m \u001b[0mpd\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mmerge\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mACA\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mpopulation\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mleft_on\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m'State'\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mright_on\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m'NAME'\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mhow\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m'left'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      5\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 6\u001b[0;31m \u001b[0mACA\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mcombine_dfs\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mACA\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mpopulation\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+      "\u001b[0;31mNameError\u001b[0m: name 'population' is not defined"
+     ]
+    }
+   ],
+   "source": [
+    "# Join to ACA dataset\n",
+    "\n",
+    "def combine_dfs(ACA, population):\n",
+    "        return pd.merge(ACA, population, left_on = 'State', right_on = 'NAME', how = 'left')\n",
+    "\n",
+    "ACA = combine_dfs(ACA, population)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "d913d68c-95f2-db9c-7748-a6c7320c48f0"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {
+    "_cell_guid": "4dc9d65e-f8a1-6805-9eec-b0695b380e78"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {
+    "_cell_guid": "0297676f-499b-57a4-fead-13fd047eefd1"
+   },
+   "outputs": [],
+   "source": [
+    "# Impute missing values with mean\n",
+    "\n",
+    "imp=Imputer(missing_values=\"NaN\", strategy=\"mean\" )\n",
+    "\n",
+    "imp.fit(ACA[[\"Medicaid Enrollment (2013)\"]])\n",
+    "ACA[\"Medicaid Enrollment (2013)\"]=imp.transform(ACA[[\"Medicaid Enrollment (2013)\"]]).ravel()\n",
+    "\n",
+    "imp.fit(ACA[[\"Medicaid Enrollment Change (2013-2016)\"]])\n",
+    "ACA[\"Medicaid Enrollment Change (2013-2016)\"]=imp.transform(ACA[[\"Medicaid Enrollment Change (2013-2016)\"]]).ravel()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {
+    "_cell_guid": "f8f051e3-c523-87f1-2876-98860ead61bc"
+   },
+   "outputs": [
+    {
+     "ename": "KeyError",
+     "evalue": "'POPESTIMATE2015'",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mKeyError\u001b[0m                                  Traceback (most recent call last)",
+      "\u001b[0;32m/opt/conda/lib/python3.6/site-packages/pandas/indexes/base.py\u001b[0m in \u001b[0;36mget_loc\u001b[0;34m(self, key, method, tolerance)\u001b[0m\n\u001b[1;32m   2133\u001b[0m             \u001b[0;32mtry\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 2134\u001b[0;31m                 \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_engine\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mget_loc\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mkey\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   2135\u001b[0m             \u001b[0;32mexcept\u001b[0m \u001b[0mKeyError\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32mpandas/index.pyx\u001b[0m in \u001b[0;36mpandas.index.IndexEngine.get_loc (pandas/index.c:4433)\u001b[0;34m()\u001b[0m\n",
+      "\u001b[0;32mpandas/index.pyx\u001b[0m in \u001b[0;36mpandas.index.IndexEngine.get_loc (pandas/index.c:4279)\u001b[0;34m()\u001b[0m\n",
+      "\u001b[0;32mpandas/src/hashtable_class_helper.pxi\u001b[0m in \u001b[0;36mpandas.hashtable.PyObjectHashTable.get_item (pandas/hashtable.c:13742)\u001b[0;34m()\u001b[0m\n",
+      "\u001b[0;32mpandas/src/hashtable_class_helper.pxi\u001b[0m in \u001b[0;36mpandas.hashtable.PyObjectHashTable.get_item (pandas/hashtable.c:13696)\u001b[0;34m()\u001b[0m\n",
+      "\u001b[0;31mKeyError\u001b[0m: 'POPESTIMATE2015'",
+      "\nDuring handling of the above exception, another exception occurred:\n",
+      "\u001b[0;31mKeyError\u001b[0m                                  Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-12-df5960e6d931>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[0;31m# Create new Per Capita Variables (Either Per 1,000 or Per 100,000 people)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      2\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 3\u001b[0;31m \u001b[0mACA\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m\"Employer Health Insurance Coverage Per 10,000 (2015)\"\u001b[0m\u001b[0;34m]\u001b[0m \u001b[0;34m=\u001b[0m     \u001b[0;34m(\u001b[0m\u001b[0mACA\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m\"Employer Health Insurance Coverage (2015)\"\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m/\u001b[0m\u001b[0mACA\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m\"POPESTIMATE2015\"\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m*\u001b[0m\u001b[0;36m10000\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      4\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      5\u001b[0m \u001b[0mACA\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m\"Marketplace Health Insurance Coverage Per 100,000 (2016)\"\u001b[0m\u001b[0;34m]\u001b[0m \u001b[0;34m=\u001b[0m     \u001b[0;34m(\u001b[0m\u001b[0mACA\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m\"Marketplace Health Insurance Coverage (2016)\"\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m/\u001b[0m\u001b[0mACA\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m\"POPESTIMATE2016\"\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m*\u001b[0m\u001b[0;36m100000\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/opt/conda/lib/python3.6/site-packages/pandas/core/frame.py\u001b[0m in \u001b[0;36m__getitem__\u001b[0;34m(self, key)\u001b[0m\n\u001b[1;32m   2057\u001b[0m             \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_getitem_multilevel\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mkey\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2058\u001b[0m         \u001b[0;32melse\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 2059\u001b[0;31m             \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_getitem_column\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mkey\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   2060\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2061\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0m_getitem_column\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mkey\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/opt/conda/lib/python3.6/site-packages/pandas/core/frame.py\u001b[0m in \u001b[0;36m_getitem_column\u001b[0;34m(self, key)\u001b[0m\n\u001b[1;32m   2064\u001b[0m         \u001b[0;31m# get column\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2065\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mcolumns\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mis_unique\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 2066\u001b[0;31m             \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_get_item_cache\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mkey\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   2067\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2068\u001b[0m         \u001b[0;31m# duplicate columns & possible reduce dimensionality\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/opt/conda/lib/python3.6/site-packages/pandas/core/generic.py\u001b[0m in \u001b[0;36m_get_item_cache\u001b[0;34m(self, item)\u001b[0m\n\u001b[1;32m   1384\u001b[0m         \u001b[0mres\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mcache\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mget\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mitem\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1385\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0mres\u001b[0m \u001b[0;32mis\u001b[0m \u001b[0;32mNone\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 1386\u001b[0;31m             \u001b[0mvalues\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_data\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mget\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mitem\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   1387\u001b[0m             \u001b[0mres\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_box_item_values\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mitem\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mvalues\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1388\u001b[0m             \u001b[0mcache\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mitem\u001b[0m\u001b[0;34m]\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mres\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/opt/conda/lib/python3.6/site-packages/pandas/core/internals.py\u001b[0m in \u001b[0;36mget\u001b[0;34m(self, item, fastpath)\u001b[0m\n\u001b[1;32m   3541\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   3542\u001b[0m             \u001b[0;32mif\u001b[0m \u001b[0;32mnot\u001b[0m \u001b[0misnull\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mitem\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 3543\u001b[0;31m                 \u001b[0mloc\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mitems\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mget_loc\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mitem\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   3544\u001b[0m             \u001b[0;32melse\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   3545\u001b[0m                 \u001b[0mindexer\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mnp\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0marange\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mlen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mitems\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0misnull\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mitems\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/opt/conda/lib/python3.6/site-packages/pandas/indexes/base.py\u001b[0m in \u001b[0;36mget_loc\u001b[0;34m(self, key, method, tolerance)\u001b[0m\n\u001b[1;32m   2134\u001b[0m                 \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_engine\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mget_loc\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mkey\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2135\u001b[0m             \u001b[0;32mexcept\u001b[0m \u001b[0mKeyError\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 2136\u001b[0;31m                 \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_engine\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mget_loc\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_maybe_cast_indexer\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mkey\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   2137\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2138\u001b[0m         \u001b[0mindexer\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mget_indexer\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mkey\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mmethod\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mmethod\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mtolerance\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mtolerance\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32mpandas/index.pyx\u001b[0m in \u001b[0;36mpandas.index.IndexEngine.get_loc (pandas/index.c:4433)\u001b[0;34m()\u001b[0m\n",
+      "\u001b[0;32mpandas/index.pyx\u001b[0m in \u001b[0;36mpandas.index.IndexEngine.get_loc (pandas/index.c:4279)\u001b[0;34m()\u001b[0m\n",
+      "\u001b[0;32mpandas/src/hashtable_class_helper.pxi\u001b[0m in \u001b[0;36mpandas.hashtable.PyObjectHashTable.get_item (pandas/hashtable.c:13742)\u001b[0;34m()\u001b[0m\n",
+      "\u001b[0;32mpandas/src/hashtable_class_helper.pxi\u001b[0m in \u001b[0;36mpandas.hashtable.PyObjectHashTable.get_item (pandas/hashtable.c:13696)\u001b[0;34m()\u001b[0m\n",
+      "\u001b[0;31mKeyError\u001b[0m: 'POPESTIMATE2015'"
+     ]
+    }
+   ],
+   "source": [
+    "# Create new Per Capita Variables (Either Per 1,000 or Per 100,000 people)\n",
+    "\n",
+    "ACA[\"Employer Health Insurance Coverage Per 10,000 (2015)\"] = \\\n",
+    "    (ACA[\"Employer Health Insurance Coverage (2015)\"]/ACA[\"POPESTIMATE2015\"])*10000\n",
+    "\n",
+    "ACA[\"Marketplace Health Insurance Coverage Per 100,000 (2016)\"] = \\\n",
+    "    (ACA[\"Marketplace Health Insurance Coverage (2016)\"]/ACA[\"POPESTIMATE2016\"])*100000\n",
+    "\n",
+    "ACA[\"Medicaid Enrollment Change Per 100,000 (2013-2016)\"] = \\\n",
+    "    (ACA[\"Medicaid Enrollment Change (2013-2016)\"]/ACA[\"POPESTIMATE2016\"])*100000\n",
+    "    \n",
+    "ACA[\"Marketplace Tax Credits Per 100,000 (2016)\"] = \\\n",
+    "    (ACA[\"Marketplace Tax Credits (2016)\"]/ACA[\"POPESTIMATE2016\"])*100000"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "4b67fa3f-4e8d-67e3-9f08-89d998bfc942"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {
+    "_cell_guid": "23bb525e-eb1b-606e-f6f3-94801006dcda"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "ed1420ef-ef4e-dcea-cc5b-dc435ef3bc0d"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "5c21a38f-5405-a205-0467-6c0221fcb9d1"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {
+    "_cell_guid": "12033c90-949e-7f64-b9e6-869963ae4c73"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "5bba2bc5-0fb2-d8f3-89e1-e6cd65ef4885"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "5048d038-4342-e620-43aa-2bb7a8dd74cf"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {
+    "_cell_guid": "4899911f-ced6-c4cd-95e4-c1464c2e20b1"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "35d66eb0-e1b5-2037-adc0-a5f558050f74"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "b93395c8-7c9b-b795-46b1-073dccea608e"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "7383e98b-7707-d13f-86ab-cda8b798f376"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {
+    "_cell_guid": "6946a672-3247-d584-4b62-6008b7f0a0e0"
+   },
+   "outputs": [],
+   "source": [
+    "# Create new dataframes for medicaid expansion data\n",
+    "expansion_yes = ACA[ACA['State Medicaid Expansion (2016)'] == True]\n",
+    "expansion_no = ACA[ACA['State Medicaid Expansion (2016)'] == False]\n",
+    "\n",
+    "expansion = [expansion_yes['Insured Rate Change (2010-2015)'],expansion_no['Insured Rate Change (2010-2015)']] "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "_cell_guid": "c7858ab7-69cf-0ee6-8c06-a3848589d51d"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "64800715-71c8-bc06-52e3-e7418f6bac31"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "_cell_guid": "7ca32ad4-4b67-475b-1711-ce42a2069e01"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "_cell_guid": "8bfec461-3a5c-2e66-cd7e-5c95b56825dc"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "_cell_guid": "0d8f23f8-0a8b-a90d-28a9-ec3a2b143d25"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "fb830516-3ef0-9d4d-0900-7ceecd2fab21"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "a21dbeab-eb07-5a4f-54de-e5da016ac335"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "2d7bb52c-a399-6f4c-ab4f-1c2e5b9ba856"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "_cell_guid": "292b461d-abf7-9421-5d6c-082998753adf"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "_cell_guid": "74e5fb21-a1c9-9ce9-9c70-9a1b699f06ba"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "_cell_guid": "2a1fcbf9-3388-fb80-f8bc-b48fdaa2ad27"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "_cell_guid": "160eae1d-cc9f-5212-31f5-afacc83f95af"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "b9bc702f-6181-6792-c3bb-6cc4fd659840"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "5ae321c7-69bd-281a-0f7c-0ec542719f9d"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "_cell_guid": "de4612a3-13e5-4917-c381-81e54a6e3bb4"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "_cell_guid": "bbb10add-7ce2-e447-6231-cddabaaf214a"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "_cell_guid": "3bf2b4f9-0242-d968-5db0-234452363f6c"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "_cell_guid": "f7f6ea6a-6c69-0269-c195-be59a6778bdb"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "_cell_guid": "41ce1c56-6b1c-e075-3edf-954fe25ef984"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "d10b9d00-3bf2-1278-e74a-af180b3e4849"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "_cell_guid": "d3643704-a7e2-e60a-00b3-94afe4af8afb"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "40c75f2a-cb6c-472e-1983-8bb175dcd412"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "7155626a-c7a5-efb5-f0f5-9a0631fb9db0"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "aed8f84b-3288-89f9-5bff-a4f44b47075d"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "fe98fcd8-d324-9c6b-3fc8-1b6fccc61377"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "4dbbdd26-6eff-886a-1d69-05fbc3dd9ead"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "_cell_guid": "ad541bce-2009-b54d-6488-21ad8926e4b7"
+   },
+   "outputs": [],
+   "source": [
+    "# Tree Based Modeling \n",
+    "\n",
+    "from sklearn.cluster import KMeans\n",
+    "from sklearn.decomposition import PCA\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "from sklearn.linear_model import LinearRegression\n",
+    "from sklearn.metrics import mean_squared_error\n",
+    "from sklearn.ensemble import RandomForestRegressor"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "1caf8e58-1cd0-bc5c-46a6-453db1d94d4d"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {
+    "_cell_guid": "c3b61174-430f-a8ed-c80a-d7b9a39cf86c"
+   },
+   "outputs": [],
+   "source": [
+    "# Split data into train and test sets\n",
+    "\n",
+    "train=ACA.sample(frac=0.7,random_state=200)\n",
+    "test=ACA.drop(train.index)\n",
+    "\n",
+    "train['Type']='Train'\n",
+    "test['Type']='Test'\n",
+    "\n",
+    "model = pd.concat([train,test],axis=0) "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "0a9bf34f-1dce-1c26-400a-9080be08f3d8"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {
+    "_cell_guid": "dad51d19-d30e-cb58-0aa5-4292809408a1"
+   },
+   "outputs": [],
+   "source": [
+    "# Initialize the model with 2 parameters -- number of clusters and random state.\n",
+    "kmeans_model = KMeans(n_clusters=4, random_state=1)\n",
+    "\n",
+    "# Get only the numeric columns from games.\n",
+    "good_columns = model._get_numeric_data()\n",
+    "\n",
+    "# Fit the model using the good columns.\n",
+    "kmeans_model.fit(good_columns)\n",
+    "\n",
+    "# Get the cluster assignments.\n",
+    "labels = kmeans_model.labels_"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "d79ce545-7930-0358-5879-e8ece259099e"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {
+    "_cell_guid": "ea022c6a-6c77-48f0-f172-24bb616e9c20"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "e9428486-dc3b-3e25-1ab5-abeb98b3158f"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {
+    "_cell_guid": "996da394-503c-66b9-9f0b-b5ce8163d669"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "d5cdf086-3b8d-a76a-0ed4-578176d59031"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {
+    "_cell_guid": "b1050d1a-e726-3e17-7d09-922ab70ff0dd"
+   },
+   "outputs": [],
+   "source": [
+    "# Get all the columns from the dataframe.\n",
+    "columns = model.columns.tolist()\n",
+    "\n",
+    "# Filter the columns to include the ones we want.\n",
+    "columns = [c for c in columns if c in [\"State Medicaid Expansion (2016)\", \"Marketplace Tax Credits (2016)\"]]\n",
+    "\n",
+    "# Store the variable we'll be predicting on.\n",
+    "target = \"Insured Rate Change (2010-2015)\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {
+    "_cell_guid": "1a009ce9-3460-cd93-9735-ae91f8a011ab"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "411b6d88-61e4-a725-7978-9272c842de24"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {
+    "_cell_guid": "f79505bb-cd28-7477-4e89-166db59d3241"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {
+    "_cell_guid": "7c54bfc8-697f-855a-bcd4-ccdd9cb0e824"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "23cd2f1a-107b-7ce9-2ffa-e4d0bd5c5ce1"
+   },
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {
+    "_cell_guid": "a7f68ade-7ef1-0707-2166-2c47438a9cf6"
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "_cell_guid": "e22c285f-bf98-97f1-750c-6fdd6c634149"
+   },
+   "source": []
+  }
+ ],
+ "metadata": {
+  "_change_revision": 589,
+  "_is_fork": false,
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 0
+}
